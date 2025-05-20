@@ -1,0 +1,97 @@
+Given a binary tree and a target node, determine the minimum time required to burn the entire tree if the target node is set on fire. In one second, the fire spreads from a node to its left child, right child, and parent.
+Note: The tree contains unique values.
+Input: root[] = [1, 2, 3, 4, 5, 6, 7], target = 2
+Output: 3
+Explanation: Initially 2 is set to fire at 0 sec 
+At 1 sec: Nodes 4, 5, 1 catches fire.
+At 2 sec: Node 3 catches fire.
+At 3 sec: Nodes 6, 7 catches fire.
+It takes 3s to burn the complete tree.
+
+SOLUTION
+
+/*
+class Node {
+  public:
+    int data;
+    Node *left;
+    Node *right;
+
+    Node(int val) {
+        data = val;
+        left = right = NULL;
+    }
+};
+*/
+class Solution {
+  public:
+    Node* mapNode(Node *root,unordered_map<Node*, Node*>& parentmap,int target,Node *&targetNode){
+        parentmap[root]=nullptr;
+        queue<Node*> q;
+        q.push(root);
+        
+        while(!q.empty()){
+            Node* currently = q.front();
+            q.pop();
+                if(currently->data==target){
+                    targetNode=currently;
+                }
+                if(currently->left){
+                    parentmap[currently->left]=currently;
+                    q.push(currently->left);
+                }
+                if(currently->right){
+                    parentmap[currently->right]=currently;
+                    q.push(currently->right);
+                }
+            
+        }
+        return targetNode;
+    }
+    int minTime(Node* root, int target) {
+        // code here
+        unordered_map<Node*, Node*> parentmap;
+        Node *targetNode=nullptr;
+        mapNode(root,parentmap,target,targetNode);
+        
+        int time=0;
+        
+        unordered_set<Node*> visit;
+        queue<Node*> q1;
+        q1.push(targetNode);
+        visit.insert(targetNode);
+        
+        while(!q1.empty()){
+            int size=q1.size();
+            bool anynew=false;
+            
+            for(int i=1;i<=size;i++){
+                Node* curr=q1.front();
+                q1.pop();
+            
+            if(curr->left && visit.find(curr->left)==visit.end()){
+                q1.push(curr->left);
+                visit.insert(curr->left);
+                anynew=true;
+            }
+            if(curr->right && visit.find(curr->right) == visit.end()) {
+                    visit.insert(curr->right);
+                    q1.push(curr->right);
+                    anynew = true;
+            }
+            Node* parent = parentmap[curr];
+            if(parent && visit.find(parent)==visit.end()){
+                q1.push(parent);
+                visit.insert(parent);
+                anynew = true;
+            }
+            }
+            if(anynew){
+                time++;
+            
+            }
+            
+        }
+        return time;
+    }
+};
